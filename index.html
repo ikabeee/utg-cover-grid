@@ -110,6 +110,11 @@
   .export-buttons button:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }
   #export-status { font-size: 14px; }
   .manual-save { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .gallery { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+  .gallery li { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .gallery .frame { aspect-ratio: 16 / 9; }
+  .gallery .shot-name { font-family: var(--mono); font-size: 12px; overflow-wrap: anywhere; }
+  .gallery .shot-warning { font-size: 12px; color: var(--muted); margin: 0; }
   .manual-save img {
     max-width: 100%; max-height: 420px; width: auto; align-self: flex-start; border: 1px solid var(--line);
     background: repeating-conic-gradient(#2a2a2a 0 25%, #1c1c1c 0 50%) 0 0 / 24px 24px;
@@ -186,7 +191,7 @@
       <li><b>Abre un lienzo de 1920×1080 px</b><p>Importa la plantilla y déjala como la capa de hasta arriba. En el SVG ya vienen las capas <code>arte</code> y <code>guias</code>.</p></li>
       <li><b>Llena todo el lienzo con tu arte</b><p>Hazlo tú o pídeselo a tu agente conectado por MCP con el prompt de abajo, usando material de tu juego. El fondo llega hasta los cuatro bordes, sin marcos ni márgenes. Los lados y las orillas sólo se ven en algunas vistas, así que ahí va ambientación, no información.</p></li>
       <li><b>Acomoda lo importante en la zona segura</b><p>Personaje, objeto principal y título van dentro del cuadro azul de 680×680. El logo o título va en la parte de arriba, el cuadro punteado de 680×420: abajo de él, el coverflow pone una sombra con el nombre de tu juego.</p></li>
-      <li><b>Oculta las guías y exporta</b><p>Exporta la portada en JPG de 1920×1080 px en sRGB. Después, en "Prueba tu portada", súbela y descarga la tarjeta y el coverflow ya recortados y con su nombre.</p></li>
+      <li><b>Oculta las guías y exporta</b><p>Exporta la portada en JPG de 1920×1080 px en sRGB. Después, en "Prueba tu portada", súbela y descarga la tarjeta 3:4 y la portada horizontal ya recortadas y con el nombre que usa el sitio.</p></li>
       <li><b>Revisa los recortes</b><p>Súbela en "Prueba tu portada" y mira los cinco marcos. Si el título se corta en alguno, muévelo hacia el centro y vuelve a exportar.</p></li>
       <li><b>Súbela a Drive</b><p>Crea la carpeta con el slug de tu juego en el Drive del evento y sube los archivos con los nombres de la lista. Los pasos están en "Sube tu arte a Drive".</p></li>
     </ol>
@@ -326,8 +331,8 @@
       <text x="636" y="236" fill="#178fdd" font-size="26" font-weight="700">LOGO / TÍTULO 680×420</text>
     </svg>
     <ul class="legend">
-      <li><span class="swatch" style="color:#ffffff"></span><span><b>Tarjeta 3:4</b> · 810×1080. Catálogo, ficha del juego y relacionados.</span></li>
-      <li><span class="swatch" style="color:#d6d6d6"></span><span><b>Coverflow</b> · 794×1080. El 42 % de abajo lleva sombra y el nombre del juego.</span></li>
+      <li><span class="swatch" style="color:#ffffff"></span><span><b>Tarjeta 3:4</b> · 810×1080. Es tu archivo <code>[slug].jpg</code>: catálogo, coverflow, ficha del juego y relacionados.</span></li>
+      <li><span class="swatch" style="color:#d6d6d6"></span><span><b>Coverflow</b> · el sitio recorta la tarjeta a 1:1.36 (794×1080). El 42 % de abajo lleva sombra y el nombre del juego.</span></li>
       <li><span class="swatch" style="color:#3ea1e1"></span><span><b>Hero escritorio</b> · 1920×700. Carrusel de destacados en pantallas anchas.</span></li>
       <li><span class="swatch" style="color:#0582d4"></span><span><b>Hero móvil</b> · 694×1080. El mismo carrusel en el teléfono.</span></li>
       <li><span class="swatch" style="color:#68b5e6"></span><span><b>Miniatura 16:10</b> · 1728×1080. Géneros y miniaturas del carrusel.</span></li>
@@ -407,19 +412,47 @@ Cuando termines, muéstrame una vista del lienzo con las guías visibles y esper
       </div>
       <div class="export-buttons">
         <button type="button" data-export="tarjeta">Descargar tarjeta · 810×1080</button>
-        <button type="button" data-export="coverflow">Descargar coverflow · 794×1080</button>
-        <button type="button" data-export="portada" class="secondary">Descargar portada · 1920×1080</button>
+        <button type="button" data-export="portada" class="secondary">Descargar portada horizontal · 1920×1080</button>
       </div>
       <p id="export-status" role="status"></p>
       <div class="manual-save" id="export-manual" hidden></div>
     </div>
   </section>
 
+  <section aria-labelledby="gallery-heading">
+    <h2 id="gallery-heading">Galería de capturas</h2>
+    <p>La ficha de tu juego lleva una galería de capturas a 1920×1080. Es obligatoria. Sube tus capturas y la página las ajusta a 16:9 y les pone el nombre con tu slug y su número. Se numeran en el orden de los nombres de tus archivos: renómbralos (01, 02…) si quieres otro orden.</p>
+    <h3 class="label" style="margin:0">Cómo se ve en la ficha</h3>
+    <ul>
+      <li><b>Visor 16:9.</b> Cada captura llena un recuadro 16:9 recortada al centro. Si tu imagen no es 16:9, se pierden las orillas. En escritorio el visor mide hasta unos 1160×652 px; en celular, todo el ancho de la pantalla.</li>
+      <li><b>Flechas sobre los lados.</b> Con más de una imagen aparecen flechas de 38 a 46 px a media altura, pegadas a la orilla izquierda y derecha. No pongas nada importante en las franjas de unos 100 px de cada lado del lienzo de 1920.</li>
+      <li><b>Miniaturas.</b> Abajo va una tira de miniaturas 16:9 de 110 a 170 px de ancho, oscurecidas mientras no están seleccionadas. Elige capturas que se lean de un vistazo.</li>
+      <li><b>Sin texto encima.</b> El sitio no pone título ni pie sobre la captura: no necesitas dejar espacio para texto.</li>
+      <li><b>Orden.</b> Primero va tu portada horizontal (<code><span data-slug>tu-juego</span>-portada.jpg</code>), luego la tarjeta 3:4 (<code><span data-slug>tu-juego</span>.jpg</code>) y después las capturas en orden. Se navega con flechas, deslizando o con el teclado.</li>
+      <li><b>Cuántas.</b> Hasta 4 capturas.</li>
+      <li><b>Formato.</b> JPG de 1920×1080, sRGB. El sitio las sirve en WebP, así que no hace falta que las comprimas de más.</li>
+    </ul>
+    <div class="upload">
+      <input id="gallery-files" type="file" accept="image/png, image/jpeg, image/webp" multiple>
+      <label for="gallery-files">Subir capturas</label>
+      <span id="gallery-count" role="status"></span>
+    </div>
+    <ol class="gallery" id="gallery" aria-label="Capturas de la galería"></ol>
+    <div class="export">
+      <p>Usa el mismo nombre de juego que escribiste en "Prueba tu portada". Slug: <code data-slug>tu-juego</code></p>
+      <div class="export-buttons">
+        <button type="button" id="gallery-download-all" disabled>Descargar todas las capturas</button>
+      </div>
+      <p id="gallery-status" role="status"></p>
+      <div class="manual-save" id="gallery-manual" hidden></div>
+    </div>
+  </section>
+
   <section aria-labelledby="drive-heading">
     <h2 id="drive-heading">Sube tu arte a Drive</h2>
     <aside class="notice">
-      <strong>Urgen la tarjeta y el coverflow</strong>
-      <p>Sube primero <code><span data-slug>tu-juego</span>-tarjeta.jpg</code> y <code><span data-slug>tu-juego</span>-coverflow.jpg</code>. Después sube la portada completa y la galería de capturas, que también es obligatoria.</p>
+      <strong>Urge la tarjeta</strong>
+      <p>Sube primero <code><span data-slug>tu-juego</span>.jpg</code>: un juego sin tarjeta no se publica, y el sitio la usa también en el coverflow. Después sube la portada horizontal y la galería de capturas, que también es obligatoria.</p>
     </aside>
     <ol class="steps">
       <li><b>Saca tu slug</b><p>Es el nombre de tu juego en minúsculas, sin acentos y con guiones: "Los Últimos Faros" queda <code>los-ultimos-faros</code>. Escríbelo en "Nombre de tu juego" de la sección anterior y la página te lo arma.</p></li>
@@ -435,9 +468,8 @@ Cuando termines, muéstrame una vista del lienzo con las guías visibles y esper
       <table>
         <thead><tr><th>Archivo</th><th>Medidas</th><th>Dónde se usa</th><th>Prioridad</th></tr></thead>
         <tbody>
-          <tr><td><span data-slug>tu-juego</span>-tarjeta.jpg</td><td>810 × 1080 (3:4)</td><td>Tarjeta del catálogo</td><td><span class="chip warn">Urgente</span></td></tr>
-          <tr><td><span data-slug>tu-juego</span>-coverflow.jpg</td><td>794 × 1080 (1:1.36)</td><td>Coverflow de la portada, sin el nombre (el sitio lo pone)</td><td><span class="chip warn">Urgente</span></td></tr>
-          <tr><td><span data-slug>tu-juego</span>-portada.jpg</td><td>1920 × 1080 (16:9)</td><td>Carrusel de destacados y miniaturas</td><td><span class="chip">Después</span></td></tr>
+          <tr><td><span data-slug>tu-juego</span>.jpg</td><td>810 × 1080 (3:4)</td><td>Tarjeta del catálogo, coverflow (el sitio pone el nombre), miniaturas, ficha y relacionados</td><td><span class="chip warn">Urgente</span></td></tr>
+          <tr><td><span data-slug>tu-juego</span>-portada.jpg</td><td>1920 × 1080 (16:9)</td><td>Carrusel de destacados, primera imagen de la galería y vista previa al compartir</td><td><span class="chip">Después</span></td></tr>
           <tr><td><span data-slug>tu-juego</span>-captura-01.jpg, -02, -03…</td><td>1920 × 1080 (16:9)</td><td>Galería de la ficha del juego</td><td><span class="chip">Obligatoria</span></td></tr>
         </tbody>
       </table>
@@ -617,6 +649,103 @@ Cuando termines, muéstrame una vista del lienzo con las guías visibles y esper
     };
     document.querySelectorAll("[data-download]").forEach((button) => button.addEventListener("click", () => saveTemplate(offerFile, button)));
     document.querySelectorAll("[data-export]").forEach((button) => button.addEventListener("click", () => saveCrop(offerFile, button)));
+    document.getElementById("gallery-files").addEventListener("change", (event) => loadGallery(event, offerFile));
+    document.getElementById("gallery-download-all").addEventListener("click", (event) => saveAllShots(offerFile, event.currentTarget));
+  }
+
+  const MAX_SHOTS = 4;
+  let galleryShots = [];
+
+  async function loadGallery(event, offerFile) {
+    galleryShots.forEach((shot) => URL.revokeObjectURL(shot.url));
+    const files = [...event.target.files].sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    galleryShots = await Promise.all(files.map(async (file) => {
+      const url = URL.createObjectURL(file);
+      const image = await loadImage(url);
+      return { url, image };
+    }));
+    renderGallery(offerFile);
+  }
+
+  function shotFilename(index) {
+    return `${currentSlug()}-captura-${String(index + 1).padStart(2, "0")}.jpg`;
+  }
+
+  function renderGallery(offerFile) {
+    const list = document.getElementById("gallery");
+    list.replaceChildren(...galleryShots.map((shot, index) => {
+      const item = document.createElement("li");
+      const frame = document.createElement("div");
+      frame.className = "frame";
+      frame.style.backgroundImage = `url("${shot.url}")`;
+      const name = Object.assign(document.createElement("span"), { className: "shot-name", textContent: shotFilename(index) });
+      const button = Object.assign(document.createElement("button"), { type: "button", className: "secondary", textContent: "Descargar" });
+      button.addEventListener("click", () => saveShot(offerFile, button, index));
+      const buttons = Object.assign(document.createElement("div"), { className: "export-buttons" });
+      buttons.append(button);
+      item.append(frame, name);
+      const warning = describeShotSize(shot.image.naturalWidth, shot.image.naturalHeight);
+      if (warning) item.append(Object.assign(document.createElement("p"), { className: "shot-warning", textContent: warning }));
+      item.append(buttons);
+      return item;
+    }));
+    const count = galleryShots.length;
+    const tooMany = count > MAX_SHOTS ? ` Se entregan hasta ${MAX_SHOTS}: deja sólo las mejores.` : "";
+    document.getElementById("gallery-count").textContent = count ? `${count} ${count === 1 ? "captura" : "capturas"}.${tooMany}` : "";
+    document.getElementById("gallery-download-all").disabled = count === 0;
+    document.getElementById("gallery-status").textContent = "";
+  }
+
+  function describeShotSize(width, height) {
+    if (width === 1920 && height === 1080) return "";
+    if (Math.abs(width / height - 16 / 9) > 0.01) return `Mide ${width}×${height} y no es 16:9: se recortan las orillas.`;
+    if (width < 1920) return `Mide ${width}×${height}: se agranda a 1920×1080 y puede verse borrosa.`;
+    return "";
+  }
+
+  async function renderShot(image) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1920;
+    canvas.height = 1080;
+    drawCover(canvas.getContext("2d"), image);
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
+  }
+
+  async function saveShot(offerFile, button, index) {
+    const status = document.getElementById("gallery-status");
+    button.disabled = true;
+    status.textContent = "";
+    try {
+      const data = await renderShot(galleryShots[index].image);
+      status.textContent = await offerFile({ filename: shotFilename(index), data }, "gallery-manual");
+    } catch (error) {
+      status.textContent = describeDownloadError(error);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  // Browsers may ask once for permission to download several files; the pause keeps them from dropping any.
+  async function saveAllShots(offerFile, button) {
+    const status = document.getElementById("gallery-status");
+    button.disabled = true;
+    status.textContent = "";
+    try {
+      for (let index = 0; index < galleryShots.length; index++) {
+        const data = await renderShot(galleryShots[index].image);
+        const message = await offerFile({ filename: shotFilename(index), data }, "gallery-manual");
+        if (message.startsWith("Esta vista")) {
+          status.textContent = `${message} Las demás, descárgalas una por una con su botón.`;
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 300));
+      }
+      status.textContent = `Listo: ${galleryShots.length} capturas. Búscalas en tu carpeta de Descargas.`;
+    } catch (error) {
+      status.textContent = describeDownloadError(error);
+    } finally {
+      button.disabled = galleryShots.length === 0;
+    }
   }
 
   function saveWithBrowser(file) {
@@ -652,9 +781,8 @@ Cuando termines, muéstrame una vista del lienzo con las guías visibles y esper
 
   // Centered crops of the 1920x1080 master, the same ones the site makes with object-fit: cover.
   const CROPS = {
-    tarjeta: { x: 555, width: 810 },
-    coverflow: { x: 563, width: 794 },
-    portada: { x: 0, width: 1920 },
+    tarjeta: { x: 555, width: 810, suffix: "" },
+    portada: { x: 0, width: 1920, suffix: "-portada" },
   };
 
   async function saveCrop(offerFile, button) {
@@ -664,7 +792,7 @@ Cuando termines, muéstrame una vista del lienzo con las guías visibles y esper
     status.textContent = "";
     try {
       const data = await renderCrop(CROPS[kind]);
-      const message = await offerFile({ filename: `${currentSlug()}-${kind}.jpg`, data }, "export-manual");
+      const message = await offerFile({ filename: `${currentSlug()}${CROPS[kind].suffix}.jpg`, data }, "export-manual");
       status.textContent = isSample ? `${message} Ojo: es la portada de ejemplo, sube la tuya.` : message;
     } catch (error) {
       status.textContent = describeDownloadError(error);
@@ -710,10 +838,10 @@ Cuando termines, muéstrame una vista del lienzo con las guías visibles y esper
   function renderSlug() {
     const slug = currentSlug();
     document.querySelectorAll("[data-slug]").forEach((element) => { element.textContent = slug; });
+    document.querySelectorAll("#gallery .shot-name").forEach((element, index) => { element.textContent = shotFilename(index); });
     document.getElementById("drive-tree").textContent = [
       `${slug}/`,
-      `├── ${slug}-tarjeta.jpg      urgente`,
-      `├── ${slug}-coverflow.jpg    urgente`,
+      `├── ${slug}.jpg    urgente`,
       `├── ${slug}-portada.jpg`,
       `├── ${slug}-captura-01.jpg`,
       `└── ${slug}-captura-02.jpg`,
